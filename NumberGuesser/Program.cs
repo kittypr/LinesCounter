@@ -71,7 +71,7 @@ namespace NumberGuesser
                 string comparison = history[i] < puzzle ? "less then puzzle" : "bigger then puzzle";
                 Console.WriteLine("Attempt #{0}: {1} - {2}", i, history[i], comparison);
             }
-            Console.WriteLine("And puzze is: " + puzzle); 
+            Console.WriteLine("And puzzle is: " + puzzle); 
             Console.WriteLine("Bye! Hope I'll never see you again!");        
         }
     }
