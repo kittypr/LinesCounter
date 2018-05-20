@@ -20,8 +20,7 @@ namespace LineCounter
           StreamReader file = new StreamReader(name);
           while ((line = file.ReadLine()) != null)
           {
-            if (comment.IsMatch(line) | spaces.IsMatch(line))
-              continue;
+            if (comment.IsMatch(line) | spaces.IsMatch(line)) continue;
             counter++;
           }
 
@@ -37,7 +36,6 @@ namespace LineCounter
 
       System.Console.WriteLine("There were {0} lines.", counter);  
       // Suspend the screen.  
-      System.Console.ReadLine();  
     }
   }
 }
