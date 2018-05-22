@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Text.RegularExpressions;
+
 
 namespace LineCounter
 {
@@ -10,67 +10,66 @@ namespace LineCounter
     {
       string[] names = Directory.GetFiles(Directory.GetCurrentDirectory (), args[0], SearchOption.AllDirectories);
       int counter = 0;  
-      string line;
+      int symbol;
+      Char prev;
+      Char cur = '0';
 
       bool multiline = false;
+      bool inline = false;
+      bool wasMeaningful = false;
       foreach (var name in names)
       {
         try
         {
           using (StreamReader file = new StreamReader(name))
           {
-            while ((line = file.ReadLine()) != null)
+            while (( symbol = file.Read()) != -1)
             {
-              line = line.Trim();
-              if (line.Length == 0) continue;
-              if (line.StartsWith("//")) continue;
-              if (line.Contains("/*"))
+              prev = cur;
+              cur = (char) symbol;
+              if (cur.Equals('\n'))
               {
-                multiline = true;
-                if (line.StartsWith("/*"))
+                if (wasMeaningful)
                 {
-                  if (line.Contains("*/"))
-                  {
-                    if (line.EndsWith("*/"))
-                    {
-                      multiline = false;
-                      continue;
-                    }
-                    multiline = false;
-                  }
-                  else continue;
-                }
-                else
-                {
-                  if (line.Contains("*/"))
-                  {
-                    multiline = false;
-                  }
-                }
-              }
-              if (line.Contains("*/"))
-              {
-                if (line.EndsWith("*/"))
-                {
-                  multiline = false;
+                  counter++;
+                  wasMeaningful = false;
                   continue;
                 }
-                multiline = false;
+                if (inline)
+                {
+                  inline = false;
+                  continue;
+                }
+                if (multiline) continue;
               }
-              if (multiline) continue;
-              counter++;
+              if (Char.IsWhiteSpace(cur)) continue;
+              if (cur.Equals('/') && prev.Equals('/'))
+              {
+                inline = true;
+                continue;
+              }
+              if (cur.Equals('*') && prev.Equals('/'))
+              {
+                multiline = true;
+                continue;
+              }
+              if (cur.Equals('/') && prev.Equals('*'))
+              {
+                multiline = false;
+                continue;
+              }
+              if (cur.Equals('/') || cur.Equals('*')) continue;
+              if (!inline && !multiline) wasMeaningful = true;
             }
+
+            if (wasMeaningful) counter++; // конец файла = конец строки.
           }
-        }
+         }
         catch (UnauthorizedAccessException)
         {
         }
       }
-      // Read the file and display it line by line.  
-
-
-      System.Console.WriteLine("There were {0} lines.", counter);  
-      // Suspend the screen.  
+      Console.WriteLine("There were {0} lines.", counter);    
     }
   }
 }
