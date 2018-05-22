@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text.RegularExpressions;
 
 namespace LineCounter
@@ -10,25 +11,59 @@ namespace LineCounter
       string[] names = Directory.GetFiles(Directory.GetCurrentDirectory (), args[0], SearchOption.AllDirectories);
       int counter = 0;  
       string line;
-      Regex comment = new Regex(@"^\s*//.*$");
-      Regex spaces = new Regex(@"^\s*$");
 
+      bool multiline = false;
       foreach (var name in names)
       {
         try
         {
-          StreamReader file = new StreamReader(name);
-          while ((line = file.ReadLine()) != null)
+          using (StreamReader file = new StreamReader(name))
           {
-            if (comment.IsMatch(line) | spaces.IsMatch(line)) continue;
-            counter++;
+            while ((line = file.ReadLine()) != null)
+            {
+              line = line.Trim();
+              if (line.Length == 0) continue;
+              if (line.StartsWith("//")) continue;
+              if (line.Contains("/*"))
+              {
+                multiline = true;
+                if (line.StartsWith("/*"))
+                {
+                  if (line.Contains("*/"))
+                  {
+                    if (line.EndsWith("*/"))
+                    {
+                      multiline = false;
+                      continue;
+                    }
+                    multiline = false;
+                  }
+                  else continue;
+                }
+                else
+                {
+                  if (line.Contains("*/"))
+                  {
+                    multiline = false;
+                  }
+                }
+              }
+              if (line.Contains("*/"))
+              {
+                if (line.EndsWith("*/"))
+                {
+                  multiline = false;
+                  continue;
+                }
+                multiline = false;
+              }
+              if (multiline) continue;
+              counter++;
+            }
           }
-
-          file.Close();
         }
-        catch (System.UnauthorizedAccessException)
+        catch (UnauthorizedAccessException)
         {
-          
         }
       }
       // Read the file and display it line by line.  
