@@ -27,7 +27,7 @@ namespace LineCounter
             {
               prev = cur;
               cur = (char) symbol;
-              if (cur.Equals('\n'))
+              if (cur == '\n')
               {
                 if (wasMeaningful)
                 {
@@ -43,22 +43,22 @@ namespace LineCounter
                 if (multiline) continue;
               }
               if (Char.IsWhiteSpace(cur)) continue;
-              if (cur.Equals('/') && prev.Equals('/'))
+              if (cur == '/' && prev == '/')
               {
                 inline = true;
                 continue;
               }
-              if (cur.Equals('*') && prev.Equals('/'))
+              if (cur == '*' && prev == '/')
               {
                 multiline = true;
                 continue;
               }
-              if (cur.Equals('/') && prev.Equals('*'))
+              if (cur == '/' && prev == '*')
               {
                 multiline = false;
                 continue;
               }
-              if (cur.Equals('/') || cur.Equals('*')) continue;
+              if (cur == '/' || cur == '*') continue;
               if (!inline && !multiline) wasMeaningful = true;
             }
 
